@@ -1,8 +1,10 @@
 {
-  "name": "ng-formly",
-  "version": "1.0.0-rc.10",
-  "author": "Zama Khan Mohammed <mohammedzamakhan@gmail.com>",
+  "private": true,
+  "name": "aurelia-formly",
+  "version": "1.0.0-alpha.0",
+  "author": "Aluan Haddad <aluanh@gmail.com>",
   "contributors": [
+    "Aluan Haddad <aluanh@gmail.com>",
     "Zama Khan Mohammed <mohammedzamakhan@gmail.com>",
     "Kent C. Dodds <kent@doddsfamily.us>"
   ],
@@ -12,33 +14,22 @@
   "scripts": {
     "contrib:add": "all-contributors add",
     "contrib:generate": "all-contributors generate",
-    "ngc": "./node_modules/.bin/ngc",
-    "lint": "./node_modules/.bin/tslint 'src/**/*.ts' 'demo/**/*.ts'",
     "commit": "npm run build && git-cz",
-    "prepublish": "npm run build",
-    "build": "npm run build:lib && npm run build:bundles",
-    "prebuild:lib": "shx rm -rf ./lib",
-    "build:lib": "npm run ngc -- --project tsconfig.build.json",
-    "prebuild:bundles": "shx rm -rf ./bundles",
-    "build:bundles": "npm run build:bundles:compile && npm run build:bundles:minify",
-    "build:bundles:compile": "./node_modules/.bin/webpack --config .config/webpack.build.js",
-    "build:bundles:minify": "uglifyjs bundles/ng-formly.umd.js --output bundles/ng-formly.umd.min.js --in-source-map bundles/ng-formly.umd.js.map --source-map bundles/ng-formly.umd.min.js.map",
-    "demo": "node_modules/.bin/webpack-dashboard --title ng-formly-demo -- node_modules/.bin/webpack-dev-server --quiet --port 9000 --content-base demo --config .config/webpack.demo.js --open",
-    "test": "./node_modules/.bin/karma start",
-    "test-watch": "./node_modules/.bin/karma start --no-single-run --auto-watch"
+    "demo": "node_modules/.bin/webpack-dashboard --title ng-formly-demo -- node_modules/.bin/webpack-dev-server --quiet --port 9000 --content-base demo --config .config/webpack.demo.js --open"
   },
   "keywords": [
-    "angular",
+    "aurelia",
     "forms",
-    "ng-formly",
+    "aurelia-formly",
     "formly",
-    "angular 2",
-    "angular 2 forms",
     "json forms",
+    "aurelia forms",
+    "generic forms",
+    "aurelia generic forms",
     "form library"
   ],
   "license": "MIT",
-  "description": "ng-formly is an Angular 2 module which has a Components to help customize and render JavaScript/JSON configured forms. The formly-form Component and the FormlyConfig service are very powerful and bring unmatched maintainability to your application's forms.",
+  "description": "formly-js for aurelia module which has a Components to help customize and render JavaScript/JSON configured forms. The formly-form Component and the FormlyConfig service are very powerful and bring unmatched maintainability to your application's forms.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/formly-js/ng-formly.git"
@@ -47,53 +38,16 @@
     "url": "https://github.com/formly-js/ng-formly/issues"
   },
   "homepage": "https://github.com/formly-js/ng-formly#readme",
-  "peerDependencies": {
-    "@angular/forms": "^2.2.0 || >=4.0.0-rc <5.0.0"
-  },
-  "dependencies": {
-    "tslib": "^1.7.1"
-  },
   "devDependencies": {
-    "@angular/common": "^2.4.10",
-    "@angular/compiler": "^2.4.10",
-    "@angular/compiler-cli": "^2.4.10",
-    "@angular/core": "^2.4.10",
-    "@angular/forms": "^2.4.10",
-    "@angular/platform-browser": "^2.4.10",
-    "@angular/platform-browser-dynamic": "^2.4.10",
-    "@types/jasmine": "2.5.40",
-    "@types/node": "^7.0.22",
-    "angular2-template-loader": "^0.6.2",
-    "awesome-typescript-loader": "^3.1.3",
+    "aurelia-types-installer": "^0.2.13",
     "codecov": "^2.2.0",
-    "codelyzer": "^3.1.1",
     "commitizen": "^2.9.6",
-    "core-js": "^2.4.1",
     "cz-conventional-changelog": "^2.0.0",
     "istanbul-instrumenter-loader": "^2.0.0",
-    "jasmine": "^2.6.0",
-    "karma": "^1.7.0",
-    "karma-chrome-launcher": "^2.1.1",
-    "karma-coverage": "^1.1.1",
-    "karma-jasmine": "^1.1.0",
-    "karma-mocha-reporter": "^2.2.3",
-    "karma-phantomjs-launcher": "^1.0.4",
-    "karma-remap-coverage": "^0.1.4",
-    "karma-sourcemap-loader": "^0.3.7",
-    "karma-webpack": "^2.0.3",
-    "lodash.clonedeep": "^4.5.0",
-    "phantomjs-prebuilt": "^2.1.14",
-    "raw-loader": "^0.5.1",
+    "jspm": "^0.17.0-beta.42",
     "remap-istanbul": "^0.9.5",
-    "rxjs": "^5.4.1",
-    "shx": "^0.2.2",
-    "tslint": "^5.4.3",
-    "typescript": "^2.3.3",
-    "uglify-js": "^2.8.22",
-    "webpack": "^3.0.0",
-    "webpack-dashboard": "^0.4.0",
-    "webpack-dev-server": "^2.5.0",
-    "zone.js": "^0.8.12"
+    "tslint": "^5.5.0",
+    "typescript": "^2.5.0-dev.20170719"
   },
   "config": {
     "commitizen": {
