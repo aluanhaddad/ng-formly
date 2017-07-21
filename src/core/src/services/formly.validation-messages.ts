@@ -1,17 +1,14 @@
-import { Inject, Injectable } from '@angular/core';
-import { FORMLY_CONFIG_TOKEN, ConfigOption } from './formly.config';
+import {inject} from 'aurelia-dependency-injection';
+import {FORMLY_CONFIG_TOKEN, ConfigOption} from './formly.config';
 
-@Injectable()
-export class FormlyValidationMessages {
-  messages: { [name: string]: string; } = {};
-
-  constructor(@Inject(FORMLY_CONFIG_TOKEN) configs: ConfigOption[] = []) {
-    configs.map(config => {
-      if (config.validationMessages) {
-        config.validationMessages.map(validation => this.addStringMessage(validation.name, validation.message));
-      }
+@inject(FORMLY_CONFIG_TOKEN) export class FormlyValidationMessages {
+  constructor(configs: ConfigOption[] = []) {
+    configs.flatMap(config => config.validationMessages || []).forEach(validation => {
+      this.addStringMessage(validation.name, validation.message);
     });
   }
+
+  messages: {[name: string]: string} = {};
 
   addStringMessage(name: string, message: string) {
     this.messages[name] = message;

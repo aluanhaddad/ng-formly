@@ -1,17 +1,16 @@
-import { Subject } from 'rxjs/Subject';
-
+import {EventAggregator} from 'aurelia-event-aggregator';
 export class FormlyValueChangeEvent {
-  constructor(public key: string, public value: any) {}
+  constructor(public key: string, public value: {}) {}
 }
 
-export class FormlyEventEmitter extends Subject<FormlyValueChangeEvent> {
+export class FormlyEventEmitter extends EventAggregator<FormlyValueChangeEvent> {
   emit(value: FormlyValueChangeEvent) {
-    super.next(value);
+    super.publish(value);
   }
 }
 
 export class FormlyPubSub {
-  emitters: { [name: string]: FormlyEventEmitter } = {};
+  emitters: {[name: string]: FormlyEventEmitter} = {};
 
   setEmitter(key: string, emitter: FormlyEventEmitter) {
     this.emitters[key] = emitter;

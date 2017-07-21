@@ -45,7 +45,7 @@
       true,
       200
     ],
-    "no-angle-bracket-type-assertion": true,
+    "no-angle-bracket-type-assertion": false,
     "no-arg": true,
     "no-bitwise": true,
     "no-conditional-assignment": true,
@@ -63,7 +63,7 @@
     "no-require-imports": true,
     "no-string-literal": true,
     "no-switch-case-fall-through": true,
-    "no-null-keyword": true,
+    "no-null-keyword": false,
     "no-trailing-whitespace": false,
     "no-var-keyword": true,
     "no-var-requires": true,
@@ -101,7 +101,7 @@
     "arrow-parens": [
       false
     ],
-    "no-any": true,
+    "no-any": false,
     "new-parens": true,
     "one-variable-per-declaration": [
       true,
@@ -126,7 +126,6 @@
       true,
       "check-branch",
       "check-decl",
-      "check-module",
       "check-operator",
       "check-operator",
       "check-separator",

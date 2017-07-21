@@ -1,16 +1,15 @@
-import { Injectable, Inject, OpaqueToken } from '@angular/core';
-import { FormlyGroup } from '../components/formly.group';
-import { Field } from './../templates/field';
-import { reverseDeepMerge } from './../utils';
-import { FormlyFieldConfig } from '../components/formly.field.config';
+import {inject} from 'aurelia-dependency-injection';
+import {FormlyGroup} from '../components/formly.group';
+import {Field} from './../templates/field';
+import {reverseDeepMerge} from './../utils';
+import {FormlyFieldConfig} from '../components/formly.field.config';
 
-export const FORMLY_CONFIG_TOKEN = new OpaqueToken('FORMLY_CONFIG_TOKEN');
+export const FORMLY_CONFIG_TOKEN = Symbol('FORMLY_CONFIG_TOKEN');
 
 /**
  * Maintains list of formly field directive types. This can be used to register new field templates.
  */
-@Injectable()
-export class FormlyConfig {
+@inject(FORMLY_CONFIG_TOKEN) export class FormlyConfig {
   types: {[name: string]: TypeOption} = {
     'formly-group': {
       name: 'formly-group',
@@ -29,16 +28,16 @@ export class FormlyConfig {
   };
 
   extras: {
-    fieldTransform?: any,
+    fieldTransform?: {},
     showError?: (field: Field) => boolean;
   } = {
     fieldTransform: undefined,
-    showError: function(field: Field) {
+    showError(field: Field) {
       return field.formControl.touched && !field.formControl.valid;
     },
   };
 
-  constructor(@Inject(FORMLY_CONFIG_TOKEN) configs: ConfigOption[] = []) {
+  constructor(configs: ConfigOption[] = []) {
     configs.map(config => this.addConfig(config));
   }
 
@@ -56,7 +55,7 @@ export class FormlyConfig {
       config.manipulators.map(manipulator => this.setManipulator(manipulator));
     }
     if (config.extras) {
-      this.extras = { ...this.extras, ...config.extras };
+      this.extras = {...this.extras, ...config.extras};
     }
   }
 
@@ -67,7 +66,7 @@ export class FormlyConfig {
       });
     } else {
       if (!this.types[options.name]) {
-        this.types[options.name] = <TypeOption>{};
+        this.types[options.name] = {} as TypeOption;
       }
       this.types[options.name].component = options.component;
       this.types[options.name].name = options.name;
@@ -93,8 +92,8 @@ export class FormlyConfig {
     return this.types[name];
   }
 
-  getMergedField(field: FormlyFieldConfig = {}): any {
-    let name = field.type;
+  getMergedField(field: FormlyFieldConfig = {}) {
+    const name = field.type;
     if (!this.types[name]) {
       throw new Error(`[Formly Error] There is no type by the name of "${name}"`);
     }
@@ -107,14 +106,14 @@ export class FormlyConfig {
       reverseDeepMerge(field, this.types[name].defaultOptions);
     }
 
-    let extendDefaults = this.types[name].extends && this.getType(this.types[name].extends).defaultOptions;
+    const extendDefaults = this.types[name].extends && this.getType(this.types[name].extends).defaultOptions;
     if (extendDefaults) {
       reverseDeepMerge(field, extendDefaults);
     }
 
     if (field && field.optionsTypes) {
       field.optionsTypes.map(option => {
-        let defaultOptions = this.getType(option).defaultOptions;
+        const defaultOptions = this.getType(option).defaultOptions;
         if (defaultOptions) {
           reverseDeepMerge(field, defaultOptions);
         }
@@ -142,10 +141,10 @@ export class FormlyConfig {
 
   setTypeWrapper(type: string, name: string) {
     if (!this.types[type]) {
-      this.types[type] = <TypeOption>{};
+      this.types[type] = {} as TypeOption;
     }
     if (!this.types[type].wrappers) {
-      this.types[type].wrappers = <[string]>[];
+      this.types[type].wrappers = [] as [string];
     }
     this.types[type].wrappers.push(name);
   }
@@ -168,30 +167,30 @@ export class FormlyConfig {
 }
 export interface TypeOption {
   name: string;
-  component?: any;
+  component?: {};
   wrappers?: string[];
   extends?: string;
-  defaultOptions?: any;
+  defaultOptions?: {};
 }
 
 export interface WrapperOption {
   name: string;
-  component: any;
+  component: {};
   types?: string[];
 }
 
 export interface ValidatorOption {
   name: string;
-  validation: any;
+  validation: {};
 }
 
 export interface ValidationMessageOption {
   name: string;
-  message: any;
+  message: string;
 }
 
 export interface ManipulatorOption {
-  class?: { new (): any };
+  class?: {new(): {}};
   method?: string;
 }
 
@@ -206,7 +205,7 @@ export interface ConfigOption {
   validationMessages?: ValidationMessageOption[];
   manipulators?: ManipulatorOption[];
   extras?: {
-    fieldTransform?: any,
+    fieldTransform?: {},
     showError?: (field: FormlyFieldConfig) => boolean;
   };
 }

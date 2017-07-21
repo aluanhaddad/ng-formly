@@ -27,14 +27,10 @@
     "types": [],
     "typeRoots": [
       "./jspm_packages/npm/@types",
+      "./jspm_packages/npm",
       "./node_modules/@types"
     ],
-    "traceResolution": false,
-    "plugins": [
-      {
-        "name": "tslint-language-service"
-      }
-    ]
+    "traceResolution": false
   },
   "exclude": [
     "bundle.*",

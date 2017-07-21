@@ -1,67 +1,79 @@
-import { FormlyConfig } from './formly.config';
-import { Validators } from '@angular/forms';
-import { Component } from '@angular/core';
+import test from 'tape';
+import {FormlyConfig} from './formly.config';
+import {ValidationRules, Validator, AureliaValidationConfiguration} from 'aurelia-validation';
 
-describe('FormlyConfig service', () => {
-  let config: FormlyConfig;
-  beforeEach(() => {
-    config = new FormlyConfig([{
-      wrappers: [{ name: 'layout', component: TestComponent }],
-      types: [{ name: 'input' }],
-      validators: [{ name: 'required', validation: Validators.required }],
-    }]);
-  });
+test('FormlyConfig service', ({equal, end}) => {
+  const config = createConfig();
 
-  describe('wrappers', () => {
-    it('should add wrapper', () => {
-      config.setWrapper({ name: 'custom_wrapper', component: TestComponent });
+  test('wrappers', ({equal, end}) => {
+    test('should add wrapper', ({equal, end}) => {
+      config.setWrapper({name: 'custom_wrapper', component: TestComponent});
 
-      expect(config.getWrapper('layout').name).toEqual('layout');
-      expect(config.getWrapper('custom_wrapper').name).toEqual('custom_wrapper');
+      equal(config.getWrapper('layout').name, 'layout');
+      equal(config.getWrapper('custom_wrapper').name, 'custom_wrapper');
+      end();
     });
 
-    it('should throw when wrapper not found', () => {
+    test('should throw when wrapper not found', ({throws, end}) => {
       const config = new FormlyConfig();
-      expect(() => config.getWrapper('custom_wrapper')).toThrowError('[Formly Error] There is no wrapper by the name of "custom_wrapper"');
+      throws(() => config.getWrapper('custom_wrapper'), '[Formly Error] There is no wrapper by the name of "custom_wrapper"');
+      end();
     });
+
+    end();
   });
 
-  describe('types', () => {
-    it('should add type', () => {
-      config.setType({ name: 'custom_input' });
+  test('types', ({end}) => {
+    test('should add type', ({equal, end}) => {
+      config.setType({name: 'custom_input'});
 
-      expect(config.getType('input').name).toEqual('input');
-      expect(config.getType('custom_input').name).toEqual('custom_input');
+      equal(config.getType('input').name, 'input');
+      equal(config.getType('custom_input').name, 'custom_input');
+      end();
     });
 
-    it('should add type as an array', () => {
-      config.setType([{ name: 'custom_input1' }, { name: 'custom_input2' }]);
+    test('should add type as an array', ({equal, end}) => {
+      config.setType([{name: 'custom_input1'}, {name: 'custom_input2'}]);
 
-      expect(config.getType('custom_input1').name).toEqual('custom_input1');
-      expect(config.getType('custom_input2').name).toEqual('custom_input2');
+      equal(config.getType('custom_input1').name, 'custom_input1');
+      equal(config.getType('custom_input2').name, 'custom_input2');
+      end();
     });
 
-    it('should throw when type not found', () => {
+    test('should throw when type not found', ({throws, end}) => {
       const config = new FormlyConfig();
-      expect(() => config.getType('custom_input')).toThrowError('[Formly Error] There is no type by the name of "custom_input"');
+      throws(() => config.getType('custom_input'), '[Formly Error] There is no type by the name of "custom_input"');
+      end();
     });
+    end();
   });
 
-  describe('validators', () => {
-    it('should add validator', () => {
-      config.setValidator({ name: 'null', validation: Validators.nullValidator });
+  test('validators', ({equal, end}) => {
+    test('should add validator', ({equal, end}) => {
+      config.setValidator({name: 'null', validation: Validators.nullValidator});
 
-      expect(config.getValidator('null').name).toEqual('null');
-      expect(config.getValidator('required').name).toEqual('required');
+      equal(config.getValidator('null').name, 'null');
+      equal(config.getValidator('required').name, 'required');
     });
 
-    it('should throw when validator not found', () => {
+    test('should throw when validator not found', ({throws, end}) => {
       const config = new FormlyConfig();
-      expect(() => config.getValidator('custom_validator')).toThrowError('[Formly Error] There is no validator by the name of "custom_validator"');
+      throws(() => config.getValidator('custom_validator'), '[Formly Error] There is no validator by the name of "custom_validator"');
+      end();
     });
+    end();
   });
+  end();
 });
 
 @Component({selector: 'formly-test-cmp', template: '', entryComponents: []})
 class TestComponent {
+}
+
+function createConfig() {
+  return new FormlyConfig([{
+    wrappers: [{name: 'layout', component: TestComponent}],
+    types: [{name: 'input'}],
+    validators: [{name: 'required', validation: Validators.required}],
+  }]);
 }

@@ -1,12 +1,11 @@
-import { Injectable } from '@angular/core';
-import { FormGroup, FormArray, FormControl, AbstractControl, Validators } from '@angular/forms';
-import { FormlyConfig } from './formly.config';
-import { evalStringExpression, evalExpressionValueSetter, evalExpression, getFieldId, assignModelValue, isObject } from './../utils';
-import { FormlyFieldConfig } from '../components/formly.field.config';
-import { getKeyPath, isUndefined } from '../utils';
+import {FormGroup, FormArray, FormControl, AbstractControl, Validators} from '@angular/forms';
+import {FormlyConfig} from './formly.config';
+import {evalStringExpression, evalExpressionValueSetter, evalExpression, getFieldId, assignModelValue, isObject} from './../utils';
+import {FormlyFieldConfig} from '../components/formly.field.config';
+import {getKeyPath, isUndefined} from '../utils';
+import {autoinject} from 'aurelia-dependency-injection';
 
-@Injectable()
-export class FormlyFormBuilder {
+@autoinject export class FormlyFormBuilder {
   private defaultPath;
   private validationOpts = ['required', 'pattern', 'minLength', 'maxLength', 'min', 'max'];
   private formId = 0;
@@ -59,7 +58,7 @@ export class FormlyFormBuilder {
 
         if (path.length > 1) {
           const rootPath = path.shift();
-          let nestedForm = <FormGroup>(form.get(rootPath.toString()) ? form.get(rootPath.toString()) : new FormGroup({}));
+          const nestedForm = <FormGroup>(form.get(rootPath.toString()) ? form.get(rootPath.toString()) : new FormGroup({}));
           if (!form.get(rootPath.toString())) {
             form.addControl(rootPath, nestedForm);
           }
@@ -88,8 +87,8 @@ export class FormlyFormBuilder {
           if (!model.hasOwnProperty(field.key)) {
             model[field.key] = {};
           }
-          let nestedForm = <FormGroup>form.get(field.key),
-            nestedModel = model[field.key] || {};
+          let nestedForm = <FormGroup>form.get(field.key);
+          const nestedModel = model[field.key] || {};
 
           if (!nestedForm) {
             nestedForm = new FormGroup(
@@ -123,25 +122,23 @@ export class FormlyFormBuilder {
     options.formState = options.formState || {};
 
     if (field.expressionProperties) {
-      for (let key in field.expressionProperties) {
-        if (typeof field.expressionProperties[key] === 'string') {
-          // cache built expression
-          field.expressionProperties[key] = {
-            expression: evalStringExpression(field.expressionProperties[key], ['model', 'formState']),
-            expressionValueSetter: evalExpressionValueSetter(key, ['expressionValue', 'model', 'templateOptions', 'validation']),
-          };
-        }
+      for (const [key, value] of Object.entries(field.expressionProperties).filter(([key, value]) => typeof value === 'string')) {
+        // cache built expression
+        field.expressionProperties[key] = {
+          expression: evalStringExpression(field.expressionProperties[key], ['model', 'formState']),
+          expressionValueSetter: evalExpressionValueSetter(key, ['expressionValue', 'model', 'templateOptions', 'validation']),
+        };
 
-        const expressionValue = evalExpression(field.expressionProperties[key].expression, { field }, [model, options.formState]);
+        const expressionValue = evalExpression(field.expressionProperties[key].expression, {field}, [model, options.formState]);
         field.expressionProperties[key].expressionValue = expressionValue;
-        evalExpression(field.expressionProperties[key].expressionValueSetter, { field }, [expressionValue, model, field.templateOptions || {}, field.validation]);
+        evalExpression(field.expressionProperties[key].expressionValueSetter, {field}, [expressionValue, model, field.templateOptions || {}, field.validation]);
       }
     }
 
     if (typeof field.hideExpression === 'string') {
       // cache built expression
       field.hideExpression = evalStringExpression(field.hideExpression, ['model', 'formState']);
-      field.hide = evalExpression(field.hideExpression, { field }, [model, options.formState]);
+      field.hide = evalExpression(field.hideExpression, {field}, [model, options.formState]);
     }
   }
 
@@ -156,9 +153,9 @@ export class FormlyFormBuilder {
   }
 
   private initFieldAsyncValidation(field: FormlyFieldConfig) {
-    let validators = [];
+    const validators = [];
     if (field.asyncValidators) {
-      for (let validatorName in field.asyncValidators) {
+      for (const validatorName in field.asyncValidators) {
         if (validatorName !== 'validation') {
           validators.push((control: FormControl) => {
             let validator = field.asyncValidators[validatorName];
@@ -197,12 +194,12 @@ export class FormlyFormBuilder {
   }
 
   private initFieldValidation(field: FormlyFieldConfig) {
-    let validators = [];
+    const validators = [];
     this.validationOpts.filter(opt => field.templateOptions && field.templateOptions[opt]).map((opt) => {
       validators.push(this.getValidation(opt, field.templateOptions[opt]));
     });
     if (field.validators) {
-      for (let validatorName in field.validators) {
+      for (const validatorName in field.validators) {
         if (validatorName !== 'validation') {
           validators.push((control: FormControl) => {
             let validator = field.validators[validatorName];
@@ -241,8 +238,8 @@ export class FormlyFormBuilder {
     /* Although the type of the key property in FormlyFieldConfig is declared to be a string,
      the recurstion of this FormBuilder uses an Array.
      This should probably be addressed somehow. */
-    let name: string = typeof field.key === 'string' ? field.key : field.key[0],
-      formControl: AbstractControl;
+    const name = typeof field.key === 'string' ? field.key : field.key[0] as string;
+    let formControl: AbstractControl;
 
     if (field.formControl instanceof AbstractControl) {
       formControl = field.formControl;
@@ -250,7 +247,7 @@ export class FormlyFormBuilder {
       formControl = field.component.createControl(model, field);
     } else {
       formControl = new FormControl(
-        { value: model, disabled: field.templateOptions.disabled },
+        {value: model, disabled: field.templateOptions.disabled},
         field.validators ? field.validators.validation : undefined,
         field.asyncValidators ? field.asyncValidators.validation : undefined,
       );
@@ -285,15 +282,15 @@ export class FormlyFormBuilder {
   }
 
   private checkMinMax(opt, changes, value) {
-    if (changes == null || changes === '' ) {
+    if (changes === null || changes === '') {
       return true;
     }
 
     if (opt === 'min') {
-        return parseInt(changes) >= value;
+      return parseInt(changes, 10) >= value;
     }
 
-    return parseInt(changes) <= value;
+    return parseInt(changes, 10) <= value;
   }
 
   private addControl(form: FormGroup, key: string, formControl: AbstractControl, field: FormlyFieldConfig) {

@@ -1,20 +1,25 @@
-import { Component } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
-import { FieldType } from '../templates/field.type';
+import {FieldType} from '../templates/field.type';
+import {inlineView, customElement} from 'aurelia-templating';
 
-@Component({
-  selector: 'formly-group',
-  template: `
-    <formly-form [fields]="field.fieldGroup" [model]="model" [form]="formlyGroup" [options]="newOptions" [ngClass]="field.fieldGroupClassName" [buildForm]="false"></formly-form>
-  `,
-})
+@customElement('formly-group')
+@inlineView(`
+  <template>
+    <formly-form [fields]="field.fieldGroup"
+        [model]="model"
+        [form]="formlyGroup"
+        [options]="newOptions"
+        [ngClass]="field.fieldGroupClassName"
+        [buildForm]="false">
+    </formly-form>
+  </template>`
+)
 export class FormlyGroup extends FieldType {
 
   get newOptions() {
-    return { ...this.options };
+    return {...this.options};
   }
 
-  get formlyGroup(): AbstractControl {
+  get formlyGroup() {
     if (this.field.formControl) {
       return this.field.formControl;
     } else {

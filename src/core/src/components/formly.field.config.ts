@@ -1,4 +1,6 @@
-import { FormGroup, AbstractControl } from '@angular/forms';
+export type AbstractControl = {value};
+export type FormGroup = {[key: string]: AbstractControl};
+
 export interface FormlyFieldConfig {
   key?: string;
   id?: string;
@@ -19,7 +21,7 @@ export interface FormlyFieldConfig {
   wrapper?: string[] | string;
   wrappers?: string[];
   fieldGroupClassName?: string;
-  fieldGroup?: Array<FormlyFieldConfig>;
+  fieldGroup?: FormlyFieldConfig[];
   fieldArray?: FormlyFieldConfig;
   hide?: boolean;
   formControl?: AbstractControl;
@@ -39,7 +41,7 @@ export interface FormlyTemplateOptions {
   label?: string;
   placeholder?: string;
   disabled?: Boolean;
-  options?: Array<any>;
+  options?: any[];
   rows?: number;
   cols?: number;
   description?: string;
@@ -63,7 +65,7 @@ export interface FormlyTemplateOptions {
 }
 
 export interface FormlyLifeCycleFn {
-    (form?: FormGroup, field?: FormlyFieldConfig, model?: any, options?: any): void;
+  (form?: FormGroup, field?: FormlyFieldConfig, model?: any, options?: any): void;
 }
 
 export interface FormlyLifeCycleOptions {
