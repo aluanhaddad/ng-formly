@@ -1,6 +1,7 @@
 {
   "exclude": [
     "jspm.config.js",
+    "jspm.*.config.js",
     "jspm_packages",
     "node_modules"
   ],
@@ -9,13 +10,6 @@
     "semicolon": [
       true,
       "always"
-    ],
-    "object-literal-key-quotes": [
-      true,
-      "as-needed"
-    ],
-    "trailing-comma": [
-      true
     ]
   },
   "rules": {
