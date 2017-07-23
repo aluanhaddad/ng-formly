@@ -1,0 +1,6 @@
+<template>
+  <ng-container ref="fieldComponent"></ng-container>
+  <div
+    if.bind="field.template && !field.fieldGroup"
+    inner-html.bind="field.template"></div>
+</template>

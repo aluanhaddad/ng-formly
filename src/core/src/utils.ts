@@ -1,21 +1,24 @@
-import { FormlyFieldConfig } from './core';
+import {FormlyFieldConfig} from './core';
+import {getLogger} from 'aurelia-logging';
 
-export function getFieldId(formId: string, options: FormlyFieldConfig, index: string|number) {
+const logger = getLogger('utils');
+
+export function getFieldId(formId: string, options: FormlyFieldConfig, index: string | number) {
   if (options.id) return options.id;
   let type = options.type;
   if (!type && options.template) type = 'template';
   return [formId, type, options.key, index].join('_');
 }
 
-export function getKeyPath(field: {key?: string|string[], fieldGroup?: any, fieldArray?: any}): (string|number)[] {
+export function getKeyPath(field: {key?: string | string[], fieldGroup?: any, fieldArray?: any}): Array<string | number> {
   /* We store the keyPath in the field for performance reasons. This function will be called frequently. */
-  if (field['_formlyKeyPath'] !== undefined) {
-    return field['_formlyKeyPath'];
+  if (field._formlyKeyPath !== undefined) {
+    return field._formlyKeyPath;
   }
-  let keyPath: (string|number)[] = [];
+  let keyPath: Array<string | number> = [];
   if (field.key) {
     /* Also allow for an array key, hence the type check  */
-    let pathElements = typeof field.key === 'string' ? field.key.split('.') : field.key;
+    const pathElements = typeof field.key === 'string' ? field.key.split('.') : field.key;
     for (let pathElement of pathElements) {
       if (typeof pathElement === 'string') {
         /* replace paths of the form names[2] by names.2, cfr. angular formly */
@@ -26,13 +29,13 @@ export function getKeyPath(field: {key?: string|string[], fieldGroup?: any, fiel
       }
     }
     for (let i = 0; i < keyPath.length; i++) {
-      let pathElement = keyPath[i];
-      if (typeof pathElement === 'string' && stringIsInteger(pathElement))  {
-        keyPath[i] = parseInt(pathElement);
+      const pathElement = keyPath[i];
+      if (typeof pathElement === 'string' && stringIsInteger(pathElement)) {
+        keyPath[i] = parseInt(pathElement, 10);
       }
     }
   }
-  field['_formlyKeyPath'] = keyPath;
+  field._formlyKeyPath = keyPath;
   return keyPath;
 }
 
@@ -41,11 +44,11 @@ function stringIsInteger(str: string) {
 }
 
 export function getFieldModel(model: any, field: FormlyFieldConfig, constructEmptyObjects: boolean): any {
-  let keyPath: (string|number)[] = getKeyPath(field);
+  const keyPath: Array<string | number> = getKeyPath(field);
   let value: any = model;
   for (let i = 0; i < keyPath.length; i++) {
-    let path = keyPath[i];
-    let pathValue = value[path];
+    const path = keyPath[i];
+    const pathValue = value[path];
     if (isNullOrUndefined(pathValue) && constructEmptyObjects) {
       if (i < keyPath.length - 1) {
         /* TODO? : It would be much nicer if we could construct object instances of the correct class, for instance by using factories. */
@@ -100,7 +103,7 @@ export function getKey(controlKey: string, actualKey: string) {
 }
 
 export function reverseDeepMerge(dest, source = undefined) {
-  let args = Array.prototype.slice.call(arguments);
+  const args = Array.prototype.slice.call(arguments);
   if (!args[1]) {
     return dest;
   }
@@ -108,8 +111,8 @@ export function reverseDeepMerge(dest, source = undefined) {
     if (!index) {
       return;
     }
-    for (let srcArg in src) {
-      if (isNullOrUndefined(dest[srcArg]) || isBlankString(dest[srcArg])) {
+    for (const srcArg in src) {
+      if (isNullOrUndefined(dest[srcArg]) || dest[srcArg] === '') {
         if (isFunction(src[srcArg])) {
           dest[srcArg] = src[srcArg];
         } else {
@@ -123,20 +126,16 @@ export function reverseDeepMerge(dest, source = undefined) {
   return dest;
 }
 
-export function isNullOrUndefined(value: any) {
+export function isNullOrUndefined(value) {
   return value === undefined || value === null;
 }
 
-export function isUndefined(value: any) {
-  return value === undefined;
-}
-
-export function isBlankString(value: any) {
-  return value === '';
+export function isValue(value) {
+  return !isNullOrUndefined(value);
 }
 
 export function isFunction(value: any) {
-  return typeof(value) === 'function';
+  return typeof (value) === 'function';
 }
 
 export function objAndSameType(obj1, obj2) {
@@ -145,7 +144,7 @@ export function objAndSameType(obj1, obj2) {
 }
 
 export function isObject(x: any) {
-  return x != null && typeof x === 'object';
+  return x !== null && typeof x === 'object';
 }
 
 export function clone(value: any) {
@@ -159,7 +158,7 @@ export function evalStringExpression(expression: string, argNames: string[]) {
   try {
     return Function.bind.apply(Function, [void 0].concat(argNames.concat(`return ${expression};`)))();
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 }
 
@@ -168,14 +167,10 @@ export function evalExpressionValueSetter(expression: string, argNames: string[]
     return Function.bind
       .apply(Function, [void 0].concat(argNames.concat(`${expression} = expressionValue;`)))();
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 }
 
-export function evalExpression(expression: string | Function | boolean, thisArg: any, argVal: any[]): boolean {
-  if (expression instanceof Function) {
-    return expression.apply(thisArg, argVal);
-  } else {
-    return expression ? true : false;
-  }
+export function evalExpression(expression: string | Function | boolean, thisArg, argVal: any[]) {
+  return !!(expression instanceof Function ? expression.apply(thisArg, argVal) : expression);
 }

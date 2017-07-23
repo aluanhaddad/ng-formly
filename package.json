@@ -12,6 +12,7 @@
   "module": "lib/src/index.js",
   "typings": "lib/src/index.d.ts",
   "scripts": {
+    "test": "jspm run src/**/*.spec.ts | faucet",
     "postinstall": "jspm i && ati i --explicitIndex false",
     "contrib:add": "all-contributors add",
     "contrib:generate": "all-contributors generate",
@@ -44,6 +45,7 @@
     "codecov": "^2.2.0",
     "commitizen": "^2.9.6",
     "cz-conventional-changelog": "^2.0.0",
+    "faucet": "0.0.1",
     "istanbul-instrumenter-loader": "^2.0.0",
     "jspm": "^0.17.0-beta.42",
     "remap-istanbul": "^0.9.5",
@@ -76,15 +78,12 @@
       "constants": "npm:jspm-nodelibs-constants@^0.2.0",
       "crypto": "npm:jspm-nodelibs-crypto@^0.2.0",
       "events": "npm:jspm-nodelibs-events@^0.2.0",
-      "fs": "npm:jspm-nodelibs-fs@^0.2.0",
       "http": "npm:jspm-nodelibs-http@^0.2.0",
       "module": "npm:jspm-nodelibs-module@^0.2.0",
       "net": "npm:jspm-nodelibs-net@^0.2.0",
       "os": "npm:jspm-nodelibs-os@^0.2.0",
-      "path": "npm:jspm-nodelibs-path@^0.2.0",
       "plugin-babel": "npm:systemjs-plugin-babel@^0.0.25",
       "plugin-typescript": "github:frankwallis/plugin-typescript@^7.0.6",
-      "process": "npm:jspm-nodelibs-process@^0.2.0",
       "stream": "npm:jspm-nodelibs-stream@^0.2.0",
       "string_decoder": "npm:jspm-nodelibs-string_decoder@^0.2.0",
       "tape": "npm:tape@^4.7.0",
@@ -104,7 +103,7 @@
       "aurelia-loader-default": "npm:aurelia-loader-default@^1.0.0",
       "aurelia-logging": "npm:aurelia-logging@^1.0.0",
       "aurelia-logging-console": "npm:aurelia-logging-console@^1.0.0",
-      "aurelia-metadata": "npm:aurelia-metadata@^1.0.0",
+      "aurelia-metadata": "npm:aurelia-metadata@^1.0.3",
       "aurelia-pal": "npm:aurelia-pal@^1.0.0",
       "aurelia-pal-browser": "npm:aurelia-pal-browser@^1.1.0",
       "aurelia-path": "npm:aurelia-path@^1.0.0",
@@ -115,12 +114,25 @@
       "aurelia-templating": "npm:aurelia-templating@^1.4.2",
       "aurelia-templating-binding": "npm:aurelia-templating-binding@^1.0.0",
       "aurelia-templating-resources": "npm:aurelia-templating-resources@^1.0.0",
-      "aurelia-templating-router": "npm:aurelia-templating-router@^1.0.0"
+      "aurelia-templating-router": "npm:aurelia-templating-router@^1.0.0",
+      "core-js": "npm:core-js@^2.4.1",
+      "fs": "npm:jspm-nodelibs-fs@^0.2.0",
+      "path": "npm:jspm-nodelibs-path@^0.2.0",
+      "process": "npm:jspm-nodelibs-process@^0.2.0"
     },
     "overrides": {
       "github:frankwallis/plugin-typescript@7.0.6": {
         "dependencies": {
           "typescript": "npm:typescript@next"
+        }
+      },
+      "npm:aurelia-metadata@1.0.3": {
+        "meta": {
+          "*.js": {
+            "deps": [
+              "core-js"
+            ]
+          }
         }
       },
       "npm:inherits@2.0.3": {
@@ -144,7 +156,8 @@
         "browser": "index.js"
       },
       "npm:tslib@1.7.1": {
-        "format": "cjs",
+        "main": "tslib.es6.js",
+        "format": "esm",
         "meta": {
           "tslib.js": {
             "esModule": true

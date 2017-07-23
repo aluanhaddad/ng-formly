@@ -1,8 +1,8 @@
 import {inject} from 'aurelia-dependency-injection';
 import {FORMLY_CONFIG_TOKEN, ConfigOption} from './formly.config';
 
-@inject(FORMLY_CONFIG_TOKEN) export class FormlyValidationMessages {
-  constructor(configs: ConfigOption[] = []) {
+export class FormlyValidationMessages {
+  constructor( @inject(FORMLY_CONFIG_TOKEN) configs: ConfigOption[] = []) {
     configs.flatMap(config => config.validationMessages || []).forEach(validation => {
       this.addStringMessage(validation.name, validation.message);
     });

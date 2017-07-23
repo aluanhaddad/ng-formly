@@ -17,7 +17,7 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "module": "es2015",
-    "target": "esnext",
+    "target": "es5",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "lib": [
@@ -27,7 +27,6 @@
     "types": [],
     "typeRoots": [
       "./jspm_packages/npm/@types",
-      "./jspm_packages/npm",
       "./node_modules/@types"
     ],
     "traceResolution": false

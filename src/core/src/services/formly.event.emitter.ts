@@ -4,7 +4,7 @@ export class FormlyValueChangeEvent {
 }
 
 export class FormlyEventEmitter extends EventAggregator<FormlyValueChangeEvent> {
-  emit(value: FormlyValueChangeEvent) {
+  publish(value: FormlyValueChangeEvent) {
     super.publish(value);
   }
 }

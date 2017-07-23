@@ -1,37 +1,24 @@
-import {Component, OnChanges, Input, SimpleChanges} from '@angular/core';
-import {FormControl, FormGroup, FormArray} from '@angular/forms';
 import {FormlyValueChangeEvent} from './../services/formly.event.emitter';
-import {FormlyFieldConfig} from './formly.field.config';
+import {FormlyFieldConfig, FormGroup} from './formly.field.config';
 import {FormlyFormBuilder} from '../services/formly.form.builder';
-import {assignModelValue, isNullOrUndefined, isObject, reverseDeepMerge, getKey, getValueForKey, getFieldModel} from '../utils';
+import {assignModelValue, isValue, isObject, reverseDeepMerge, getKey, getValueForKey, getFieldModel} from '../utils';
+import {bindable} from 'aurelia-framework';
 
-@Component({
-  selector: 'formly-form',
-  template: `
-    <formly-field *ngFor="let field of fields"
-      [model]="fieldModel(field)" [form]="form"
-      [field]="field" (modelChange)="changeModel($event)"
-      [ngClass]="field.className"
-      [options]="options">
-    </formly-field>
-    <ng-content></ng-content>
-  `,
-})
-export class FormlyForm implements OnChanges {
-  @Input() model: any = {};
-  @Input() form: FormGroup = new FormGroup({});
-  @Input() fields: FormlyFieldConfig[] = [];
-  @Input() options: any;
-  /** @internal */
-  @Input() buildForm = true;
-  private initialModel: any;
+export class FormlyForm {
+  @bindable model = {};
+  @bindable form: FormGroup = {};
+  @bindable fields: FormlyFieldConfig[] = [];
+  @bindable options: {updateInitialValue?, resetModel?};
 
-  constructor(private formlyBuilder: FormlyFormBuilder) {}
+  @bindable buildForm = true;
+  initialModel;
 
-  ngOnChanges(changes: SimpleChanges) {
+  constructor(readonly formlyBuilder: FormlyFormBuilder) {}
+
+  ngOnChanges(changes) {
     if (changes.fields) {
       this.model = this.model || {};
-      this.form = this.form || (new FormGroup({}));
+      this.form = this.form || {};
       this.setOptions();
       if (this.buildForm !== false) {
         this.formlyBuilder.buildForm(this.form, this.fields, this.model, this.options);
@@ -43,7 +30,8 @@ export class FormlyForm implements OnChanges {
   }
 
   fieldModel(field: FormlyFieldConfig) {
-    if (field.key && (field.fieldGroup || field.fieldArray)) {
+    const isGroup = field.fieldGroup || field.fieldArray;
+    if (field.key && isGroup) {
       return getFieldModel(this.model, field, true);
     }
     return this.model;
@@ -54,17 +42,14 @@ export class FormlyForm implements OnChanges {
   }
 
   setOptions() {
-    this.options = this.options || {};
-    if (!this.options.resetModel) {
-      this.options.resetModel = this.resetModel.bind(this);
-    }
-    if (!this.options.updateInitialValue) {
-      this.options.updateInitialValue = this.updateInitialValue.bind(this);
-    }
+    const {resetModel, updateInitialValue} = this;
+    this.options = {
+      ...{resetModel, updateInitialValue}, ...this.options || {}
+    };
   }
 
-  private resetModel(model?: any) {
-    model = isNullOrUndefined(model) ? this.initialModel : model;
+  private resetModel = (model?) => {
+    model = isValue(model) ? this.initialModel : model;
     this.form.patchValue(model);
     this.resetFormGroup(model, this.form);
     this.resetFormModel(model, this.model);
@@ -77,7 +62,7 @@ export class FormlyForm implements OnChanges {
 
     // removes
     for (const key in formModel) {
-      if (!(key in model) || isNullOrUndefined(model[key])) {
+      if (!(key in model) || isValue(model[key])) {
         if (!this.form.get((path || []).concat(key))) {
           // don't remove if bound to a control
           delete formModel[key];
@@ -85,17 +70,15 @@ export class FormlyForm implements OnChanges {
       }
     }
 
-    // inserts and updates
-    for (const key in model) {
-      if (!isNullOrUndefined(model[key])) {
-        if (key in formModel) {
-          this.resetFormModel(model[key], formModel[key], (path || []).concat(key));
-        }
-        else {
+    Object.entries(model)
+      .map(([key]) => ({key, modelValue: model[key], formModelValue: formModel[key]}))
+      .forEach(({key, modelValue, formModelValue}) => {
+        if (key in formModel && isValue(modelValue)) {
+          this.resetFormModel(modelValue, formModelValue, [...path || [], ...key]);
+        } else {
           formModel[key] = model[key];
         }
-      }
-    }
+      });
   }
 
   private resetFormGroup(model: any, form: FormGroup, actualKey?: string) {
@@ -119,7 +102,7 @@ export class FormlyForm implements OnChanges {
     // removes and updates
     for (let i = formArray.length - 1; i >= 0; i--) {
       if (formArray.at(i) instanceof FormGroup) {
-        if (newValue && !isNullOrUndefined(newValue[i])) {
+        if (newValue && !isValue(newValue[i])) {
           this.resetFormGroup(newValue[i], <FormGroup>formArray.at(i));
         }
         else {
@@ -144,7 +127,7 @@ export class FormlyForm implements OnChanges {
     }
   }
 
-  private updateInitialValue() {
+  private updateInitialValue = () => {
     const obj = reverseDeepMerge(this.form.value, this.model);
     this.initialModel = JSON.parse(JSON.stringify(obj));
   }

@@ -17,10 +17,14 @@ SystemJS.config({
       "format": "esm",
       "defaultExtension": "ts",
       "meta": {
-        deps: [
-          "core-js",
-          "refelect-metadata"
-        ],
+        "*.spec.ts": {
+          "deps": [
+            "core-js",
+            "refelect-metadata",
+            "flat-map-polyfill"
+          ],
+          "loader": "plugin-typescript"
+        },
         "*.ts": {
           "loader": "plugin-typescript"
         },
@@ -64,7 +68,11 @@ SystemJS.config({
     "aurelia-templating-resources": "npm:aurelia-templating-resources@1.4.0",
     "aurelia-templating-router": "npm:aurelia-templating-router@1.1.0",
     "aurelia-validation": "npm:aurelia-validation@1.1.1",
+    "core-js": "npm:core-js@2.4.1",
     "flat-map-polyfill": "npm:flat-map-polyfill@0.3.7",
+    "fs": "npm:jspm-nodelibs-fs@0.2.1",
+    "path": "npm:jspm-nodelibs-path@0.2.3",
+    "process": "npm:jspm-nodelibs-process@0.2.1",
     "reflect-metadata": "npm:reflect-metadata@0.1.10",
     "tslib": "npm:tslib@1.7.1"
   },

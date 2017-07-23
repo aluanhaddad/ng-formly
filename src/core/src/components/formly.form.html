@@ -1,0 +1,13 @@
+<template>
+  <formly-field
+    repeat.for="field of fields"
+    model.bind="fieldModel(field)"
+    form.bind="form"
+    field.bind="field"
+    (modelChange)="changeModel($event)"
+    [ngClass]="field.className"
+    [options]="options"
+  ></formly-field>
+
+  <ng-content></ng-content>
+</template>

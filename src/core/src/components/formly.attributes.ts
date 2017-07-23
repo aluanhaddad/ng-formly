@@ -1,81 +1,72 @@
-import { Directive, HostListener, ElementRef, Input, Renderer, OnChanges, SimpleChanges, SimpleChange } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
-import { FormlyFieldConfig } from './formly.field.config';
+import {FormlyFieldConfig} from './formly.field.config';
+import {bindable, customAttribute, dynamicOptions} from 'aurelia-templating';
+import {inject, autoinject} from 'aurelia-dependency-injection';
+import {ElementEvents} from 'aurelia-framework';
+// import {} from 'aurelia-templating-resources';
+const attributes = ['id', 'name', 'placeholder', 'tabindex', 'step', 'aria-describedby'];
+const statements = ['change', 'keydown', 'keyup', 'keypress', 'click', 'focus', 'blur'];
+@dynamicOptions
+@autoinject export class FormlyAttributesCustomAttribute {
 
-@Directive({
-  selector: '[formlyAttributes]',
-})
-export class FormlyAttributes implements OnChanges {
-  @Input('formlyAttributes') field: FormlyFieldConfig;
-  @Input() formControl: AbstractControl;
-  private attributes = ['id', 'name', 'placeholder', 'tabindex', 'step', 'aria-describedby'];
-  private statements = ['change', 'keydown', 'keyup', 'keypress', 'click', 'focus', 'blur'];
-
-  @HostListener('focus') onFocus() {
-    this.field.focus = true;
+  constructor(readonly element: Element, readonly events: ElementEvents) {
+    events.subscribe('blur', () => {
+      this.focus = false;
+    });
+    events.subscribe('focus', () => {
+      this.focus = true;
+    });
   }
+  @bindable('formly-attributes') field: FormlyFieldConfig;
+  @bindable formControl;
 
-  @HostListener('blur') onBlur() {
-    this.field.focus = false;
-  }
+  options = {};
 
-  constructor(
-    private renderer: Renderer,
-    private elementRef: ElementRef,
-  ) {}
+  propertyChanged(name, newValue, oldValue) {
+    if (!newValue.field) {
+      return;
+    }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['field']) {
-      const fieldChanges = changes['field'];
-      this.attributes
-        .filter(attr => this.canApplyRender(fieldChanges, attr))
-        .map(attr => this.renderer.setElementAttribute(
-          this.elementRef.nativeElement, attr, this.getPropValue(this.field, attr),
-        ));
+    const {field: newFieldValue} = newValue.field;
+    const {field: oldFieldValue} = oldValue.field;
 
-      this.statements
-        .filter(statement => this.canApplyRender(fieldChanges, statement))
-        .map(statement => this.renderer.listen(
-          this.elementRef.nativeElement, statement, this.getStatementValue(statement),
-        ));
+    attributes.filter(attr => this.canApplyRender(newFieldValue, attr))
+      .forEach(attr => {
+        this.element.setAttribute(attr, getPropValue(this.field, attr));
+      });
 
-      if ((fieldChanges.previousValue || {}).focus !== (fieldChanges.currentValue || {}).focus) {
-        this.renderer.invokeElementMethod(this.elementRef.nativeElement, this.field.focus ? 'focus' : 'blur', []);
-      }
+    statements.filter(statement => this.canApplyRender(newFieldValue, statement))
+      .forEach(statement => {
+        this.events.subscribe(statement, this.getStatementValue(statement));
+      });
+
+    if ((oldFieldValue && oldFieldValue.focus) !== (newFieldValue && newFieldValue.focus)) {
+      this.events.publish(this.focus ? 'focus' : 'blur', {...newFieldValue});
     }
   }
 
-  private getPropValue(field: FormlyFieldConfig, prop: string) {
-    field = field || {};
-    if (field.id && prop === 'aria-describedby') {
-      return field.id + '-message';
-    }
-
-    if (field.templateOptions && field.templateOptions[prop]) {
-      return field.templateOptions[prop];
-    }
-
-    return field[prop];
+  get focus() {
+    return this.field.focus;
+  }
+  set focus(focus) {
+    this.field.focus = focus;
   }
 
-  private getStatementValue(statement: string) {
-    const fn = this.field.templateOptions[statement];
+  private getStatementValue = statement => () => this.field.templateOptions[statement](this.field, this.formControl);
 
-    return () => fn(this.field, this.formControl);
+  private canApplyRender(fieldChange: {previousValue: FormlyFieldConfig}, prop: string): boolean {
+    const currentValue = getPropValue(this.field, prop);
+    const previousValue = getPropValue(fieldChange.previousValue, prop);
+
+    return previousValue !== currentValue && statements.includes(prop) ? typeof currentValue === 'function' : true;
   }
-
-  private canApplyRender(fieldChange: SimpleChange, prop: string): Boolean {
-    const currentValue = this.getPropValue(this.field, prop),
-      previousValue = this.getPropValue(fieldChange.previousValue, prop);
-
-    if (previousValue !== currentValue) {
-      if (this.statements.indexOf(prop) !== -1) {
-        return typeof currentValue === 'function';
-      }
-
-      return true;
-    }
-
-    return false;
+}
+function getPropValue(field: FormlyFieldConfig, prop: string) {
+  const fieldValue = field || {};
+  if (fieldValue.id && prop === 'aria-describedby') {
+    return fieldValue.id + '-message';
   }
+  if (fieldValue.templateOptions && fieldValue.templateOptions[prop]) {
+    return fieldValue.templateOptions[prop];
+  }
+  return fieldValue[prop];
 }

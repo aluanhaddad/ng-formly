@@ -40,7 +40,7 @@ export interface FormlyTemplateOptions {
   type?: string;
   label?: string;
   placeholder?: string;
-  disabled?: Boolean;
+  disabled?: boolean;
   options?: any[];
   rows?: number;
   cols?: number;
@@ -51,7 +51,7 @@ export interface FormlyTemplateOptions {
   minLength?: number;
   maxLength?: number;
   pattern?: string;
-  required?: Boolean;
+  required?: boolean;
   tabindex?: number;
   step?: number;
   focus?: Function;
